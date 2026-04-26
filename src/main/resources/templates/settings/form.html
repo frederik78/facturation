@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr"
+      th:replace="~{layout :: layout(~{::content}, ~{::scripts}, 'Mon profil', 'settings')}">
+<th:block th:fragment="content">
+
+    <div class="d-flex align-items-center mb-4">
+        <h1 class="h3 mb-0">Mon profil émetteur</h1>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="max-width: 700px;">
+        <div class="card-body">
+            <form action="/settings/save" method="post" th:object="${issuer}">
+                <input type="hidden" th:field="*{id}"/>
+
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:1px;">
+                    Identité
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-7">
+                        <label class="form-label">Nom de l'entreprise <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{companyName}" required
+                               placeholder="nom entreprise"/>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Nom du contact <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{contactName}" required
+                               placeholder="nom et prénom"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Courriel</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               placeholder="courriel"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Téléphone</label>
+                        <input type="text" class="form-control" th:field="*{phone}"
+                               placeholder="téléphone"/>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:1px;">
+                    Numéros de taxes
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Numéro TPS</label>
+                        <input type="text" class="form-control" th:field="*{tpsNumber}"
+                               placeholder="numéro tps"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Numéro TVQ</label>
+                        <input type="text" class="form-control" th:field="*{tvqNumber}"
+                               placeholder="numéro tvq"/>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:1px;">
+                    Adresse (optionnel)
+                </h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label class="form-label">Adresse</label>
+                        <input type="text" class="form-control" th:field="*{address}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Ville</label>
+                        <input type="text" class="form-control" th:field="*{city}" placeholder="ville"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Province</label>
+                        <input type="text" class="form-control" th:field="*{province}" placeholder="province"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Code postal</label>
+                        <input type="text" class="form-control" th:field="*{postalCode}"/>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Enregistrer mon profil
+                </button>
+            </form>
+        </div>
+    </div>
+
+</th:block>
+<th:block th:fragment="scripts"></th:block>
+</html>
