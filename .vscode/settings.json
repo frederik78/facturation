@@ -1,4 +1,11 @@
-{
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "maven.view": "hierarchical"
-}
+ {
+  "java.home": "/Users/sophieseigneuret/.sdkman/candidates/java/current",
+  "maven.executable.path":
+"/Users/sophieseigneuret/.sdkman/candidates/maven/current/bin/mvn",
+  "terminal.integrated.profiles.osx": {
+ "zsh": { "path": "/bin/zsh", "args": ["-l"] }
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "java.debug.settings.onBuildFailureProceed": true,
+  "java.configuration.updateBuildConfiguration": "interactive"
+ }
