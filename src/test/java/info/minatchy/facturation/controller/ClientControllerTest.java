@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -25,6 +26,7 @@ public class ClientControllerTest {
     private ClientService clientService;
 
     @Test
+    @WithMockUser
     void listClients() throws Exception {
         when(clientService.findAll()).thenReturn(Arrays.asList(new Client(), new Client()));
         mockMvc.perform(get("/clients"))

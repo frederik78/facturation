@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,6 +27,7 @@ public class HomeControllerTest {
     private IssuerService issuerService;
 
     @Test
+    @WithMockUser
     void homeShowsIndex() throws Exception {
         when(issuerService.getIssuer()).thenReturn(java.util.Optional.empty());
         mockMvc.perform(get("/"))

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,6 +39,7 @@ public class InvoiceControllerTest {
     private PdfService pdfService;
 
     @Test
+    @WithMockUser
     void downloadPdfEndpoint() throws Exception {
         Issuer issuer = new Issuer(); issuer.setCompanyName("Co"); issuer.setContactName("P");
         Client client = new Client(); client.setName("Cli");
@@ -53,6 +55,7 @@ public class InvoiceControllerTest {
     }
 
     @Test
+    @WithMockUser
     void newFormRedirectsIfNoIssuer() throws Exception {
         when(issuerService.getIssuer()).thenReturn(Optional.empty());
         mockMvc.perform(get("/invoices/new"))
