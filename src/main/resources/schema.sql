@@ -84,3 +84,60 @@ CREATE TABLE IF NOT EXISTS invoice_item (
 );
 
 CREATE INDEX IF NOT EXISTS idx_item_invoice ON invoice_item(invoice_id);
+
+- -----------------------------------------------------------------------------
+-- Table : app_user (utilisateurs de l'application)
+-- -----------------------------------------------------------------------------
+-- Nommée 'app_user' et non 'user' car USER est un mot réservé dans de nombreux
+-- moteurs SQL. Cela évite des conflits si le projet migre vers PostgreSQL/MySQL.
+--
+-- Le mot de passe doit être stocké sous forme de hash compatible avec le
+-- DelegatingPasswordEncoder de Spring Security.
+-- Format attendu : {bcrypt}$2a$10$...
+--
+-- Exemple d'insertion pour le mot de passe 'changeit' :
+--   INSERT INTO app_user (username, password, role, enabled)
+--   VALUES ('admin', '{bcrypt}$2a$10$VOTRE_HASH_ICI', 'ADMIN', 1);
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS app_user (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    username   TEXT    NOT NULL UNIQUE,          -- Identifiant de connexion
+    password   TEXT    NOT NULL,                 -- Hash {bcrypt}$2a$10$... (jamais en clair)
+    role       TEXT    NOT NULL DEFAULT 'ADMIN'
+                       CHECK (role IN ('ADMIN', 'USER')),
+    enabled    INTEGER NOT NULL DEFAULT 1        -- 1 = actif, 0 = désactivé (booléen SQLite)
+                       CHECK (enabled IN (0, 1)),
+    created_at TEXT    NOT NULL                  -- Date de création ISO-8601
+                       DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    last_login TEXT                              -- Dernière connexion ISO-8601 (nullable)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_username ON app_user(username);
+
+-- -----------------------------------------------------------------------------
+-- Données initiales : compte administrateur par défaut
+-- -----------------------------------------------------------------------------
+-- ⚠️  IMPORTANT : remplacez ce hash avant toute mise en production.
+--
+-- Pour générer un hash bcrypt du mot de passe 'changeit' :
+--
+--   Option 1 — Java (recommandé, cohérent avec Spring Security) :
+--     PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+--     System.out.println(encoder.encode("changeit"));
+--
+--   Option 2 — CLI Python :
+--     python3 -c "import bcrypt; print('{bcrypt}' + bcrypt.hashpw(b'changeit', bcrypt.gensalt(10)).decode())"
+--
+--   Option 3 — CLI htpasswd (Apache) :
+--     htpasswd -bnBC 10 "" changeit | tr -d ':\n' | sed 's/$2y/$2a/'
+--     → puis préfixer manuellement avec {bcrypt}
+--
+-- Le hash ci-dessous correspond au mot de passe : changeit
+-- -----------------------------------------------------------------------------
+INSERT OR IGNORE INTO app_user (username, password, role, enabled)
+VALUES (
+    'admin',
+    '{bcrypt}$2a$10$8K1p/a0dR6XXEuHBNQgqpOT7P5qnlKJlksBFMiNiTMTkCKNKGhNOu',
+    'ADMIN',
+    1
+);
