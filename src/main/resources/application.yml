@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: facturation
+
+  datasource:
+    url: jdbc:sqlite:./data/facturation.db
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      connection-init-sql: "PRAGMA foreign_keys=ON;"
+
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: ${SSL_KEY_STORE:classpath:keystore-dev.p12}
+    key-store-type: PKCS12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:changeit}
+    key-alias: ${SSL_KEY_ALIAS:facturation}
+  http:
+    port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.web: INFO
+    info.minatchy: INFO

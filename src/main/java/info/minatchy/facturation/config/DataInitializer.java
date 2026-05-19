@@ -1,12 +1,11 @@
 package info.minatchy.facturation.config;
 
-import info.minatchy.facturation.model.Issuer;
-import info.minatchy.facturation.repository.IssuerRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import info.minatchy.facturation.repository.IssuerRepository;
 
 /**
  * Pré-remplissage optionnel de la base au premier démarrage.

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-FacturationApplication<facturation>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "info.minatchy.facturation.FacturationApplication",
+            "projectName": "facturation",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
