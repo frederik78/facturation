@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import info.minatchy.facturation.model.User;
 import info.minatchy.facturation.repository.UserRepository;
 
+import java.util.Date;
+
 @Configuration
 public class AdminInitializer {
 
@@ -25,6 +27,7 @@ public class AdminInitializer {
                 admin.setUsername("admin");
                 admin.setPassword(passwordEncoder.encode("admin"));
                 admin.setRole("ADMIN");
+                admin.setCreatedAt(new Date().toString());
                 admin.setEnabled(true);
                 userRepository.save(admin);
                 log.info(">>> Admin créé avec succès");

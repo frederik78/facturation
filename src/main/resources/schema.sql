@@ -40,13 +40,13 @@ CREATE INDEX IF NOT EXISTS idx_user_username ON app_user(username);
 -- Le hash ci-dessous correspond au mot de passe : changeit
 -- Pour regénérer : PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("changeit")
 -- -----------------------------------------------------------------------------
-INSERT OR IGNORE INTO app_user (username, password, role, enabled)
-VALUES (
-    'admin',
-    '{bcrypt}$2a$10$8K1p/a0dR6XXEuHBNQgqpOT7P5qnlKJlksBFMiNiTMTkCKNKGhNOu',
-    'ADMIN',
-    1
-);
+-- INSERT OR IGNORE INTO app_user (username, password, role, enabled)
+-- VALUES (
+--     'admin',
+--     '{bcrypt}$2a$10$8K1p/a0dR6XXEuHBNQgqpOT7P5qnlKJlksBFMiNiTMTkCKNKGhNOu',
+--     'ADMIN',
+--     1
+-- );
 
 -- -----------------------------------------------------------------------------
 -- Table : issuer (émetteur — profil de l'utilisateur, unique)
