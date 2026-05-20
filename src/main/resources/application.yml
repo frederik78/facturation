@@ -40,3 +40,10 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.web: INFO
     info.minatchy: INFO
+---
+spring:
+  config:
+    activate:
+      on-profile: encode-password
+  main:
+    web-application-type: none
