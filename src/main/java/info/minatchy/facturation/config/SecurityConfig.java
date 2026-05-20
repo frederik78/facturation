@@ -79,8 +79,9 @@ public class SecurityConfig {
                                         "default-src 'self'; " +
                                                 "script-src 'self' https://cdn.jsdelivr.net; " +
                                                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-                                                "style-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-                                                "script-src-elem 'self' https://cdn.jsdelivr.net; " +
+                                                "connect-src 'self' https://cdn.jsdelivr.net;" +
+                                                "style-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net 'unsafe-inline'; " +
+                                                "script-src-elem 'self' https://cdn.jsdelivr.net 'unsafe-inline';" +
                                                 "img-src 'self' data:; " +
                                                 "font-src 'self' https://cdn.jsdelivr.net; " +
                                                 "object-src 'none'; " +
