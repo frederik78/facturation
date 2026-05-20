@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr"
+      th:replace="~{layout :: layout(~{::content}, ~{::scripts}, 'Facture', 'invoices')}">
+<th:block th:fragment="content">
+
+<style>
+  .item-row td { vertical-align: middle; }
+  .subtotal-area { background: #f8f9fa; border-radius: 8px; padding: 1rem 1.5rem; }
+  .total-line { background: #212529; color: #fff; border-radius: 6px; padding: 0.75rem 1.5rem; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+        <a href="/invoices" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0">
+            Facture <span th:text="'#' + ${invoice.invoiceNumber}"></span>
+        </h1>
+        <span class="badge ms-3"
+              th:classappend="'badge-' + ${invoice.status.name()}"
+              th:text="${invoice.status.label}"></span>
+    </div>
+    <a th:href="@{/invoices/{id}/pdf(id=${invoice.id})}"
+       class="btn btn-primary" target="_blank">
+        <i class="bi bi-file-pdf me-1"></i>Télécharger PDF
+    </a>
+</div>
+
+<form th:action="@{/invoices/{id}/save(id=${invoice.id})}" method="post">
+
+    <!-- Informations générales -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold">Informations générales</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">N° de facture</label>
+                    <input type="text" name="invoiceNumber" class="form-control"
+                           th:value="${invoice.invoiceNumber}" required/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="invoiceDate" class="form-control"
+                           th:value="${invoice.invoiceDate}" required/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Statut</label>
+                    <select name="status" class="form-select">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s.name()}"
+                                th:text="${s.label}"
+                                th:selected="${s == invoice.status}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Client</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${invoice.client.name}" style="background:#f8f9fa"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lignes de prestation -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+            <span>Prestations</span>
+            <input type="hidden" th:name="_csrf" th:value="${_csrf.token}"/>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addItemBtn">
+                <i class="bi bi-plus-lg me-1"></i>Ajouter une ligne
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <table class="table mb-0" id="itemsTable">
+                <thead class="table-light">
+                <tr>
+                    <th style="width:30%">Description</th>
+                    <th style="width:18%">Détail / Période</th>
+                    <th style="width:8%">Qté</th>
+                    <th style="width:8%">Unité</th>
+                    <th style="width:10%">Prix unit.</th>
+                    <th style="width:9%">Début</th>
+                    <th style="width:9%">Fin</th>
+                    <th style="width:6%" class="text-end">Montant</th>
+                    <th style="width:2%"></th>
+                </tr>
+                </thead>
+                <tbody id="itemsBody">
+                <!-- Lignes existantes -->
+                <tr th:each="item,i : ${invoice.items}" class="item-row">
+                    <td>
+                        <input type="text" name="descriptions" class="form-control form-control-sm"
+                               th:value="${item.description}" placeholder="description" required/>
+                    </td>
+                    <td>
+                        <input type="text" name="details" class="form-control form-control-sm"
+                               th:value="${item.detail}" placeholder="sous-détail"/>
+                    </td>
+                    <td>
+                        <input type="number" name="quantities" class="form-control form-control-sm qty-input"
+                               th:value="${item.quantity}" step="0.01" min="0" required/>
+                    </td>
+                    <td>
+                        <input type="text" name="units" class="form-control form-control-sm"
+                               th:value="${item.unit}" placeholder="unité"/>
+                    </td>
+                    <td>
+                        <input type="number" name="unitPrices" class="form-control form-control-sm price-input"
+                               th:value="${item.unitPrice}" step="0.01" min="0" required/>
+                    </td>
+                    <td>
+                        <input type="date" name="periodStarts" class="form-control form-control-sm"
+                               th:value="${item.periodStart}"/>
+                    </td>
+                    <td>
+                        <input type="date" name="periodEnds" class="form-control form-control-sm"
+                               th:value="${item.periodEnd}"/>
+                    </td>
+                    <td class="text-end fw-semibold amount-cell"
+                        th:text="${#numbers.formatDecimal(item.amount, 1, 'COMMA', 2, 'POINT')} + ' $'">
+                    </td>
+                    <td>
+                        <input type="hidden" th:name="_csrf" th:value="${_csrf.token}"/>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-btn">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Totaux -->
+    <div class="row justify-content-end mb-4">
+        <div class="col-md-4">
+            <div class="subtotal-area">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Sous-total</span>
+                    <span id="subtotalDisplay"
+                          th:text="${#numbers.formatDecimal(invoice.subtotal, 1, 'COMMA', 2, 'POINT')} + ' $'">
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 text-muted">
+                    <span>TPS 5%</span>
+                    <span id="tpsDisplay"
+                          th:text="${#numbers.formatDecimal(invoice.tpsAmount, 1, 'COMMA', 2, 'POINT')} + ' $'">
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>TVQ 9,975%</span>
+                    <span id="tvqDisplay"
+                          th:text="${#numbers.formatDecimal(invoice.tvqAmount, 1, 'COMMA', 2, 'POINT')} + ' $'">
+                    </span>
+                </div>
+                <div class="total-line d-flex justify-content-between">
+                    <span class="fw-bold">TOTAL</span>
+                    <span class="fw-bold" id="totalDisplay"
+                          th:text="${#numbers.formatDecimal(invoice.total, 1, 'COMMA', 2, 'POINT')} + ' $'">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold">Notes (optionnel)</div>
+        <div class="card-body">
+            <textarea name="notes" class="form-control" rows="3"
+                      th:text="${invoice.notes}" placeholder="conditions de paiement, notes..."></textarea>
+        </div>
+    </div>
+    <input type="hidden" th:name="_csrf" th:value="${_csrf.token}"/>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+        <a href="/invoices" class="btn btn-outline-secondary">Annuler</a>
+        <form th:action="@{/invoices/{id}/delete(id=${invoice.id})}" method="post" class="ms-auto"
+              onsubmit="return confirm('Supprimer définitivement cette facture ?')">
+            <input type="hidden" th:name="_csrf" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>Supprimer
+            </button>
+        </form>
+    </div>
+
+</form>
+
+</th:block>
+
+<th:block th:fragment="scripts">
+<script>
+// ── Template d'une nouvelle ligne ─────────────────────────────────────────
+function newRowHtml() {
+    return `
+    <tr class="item-row">
+        <td><input type="text" name="descriptions" class="form-control form-control-sm" placeholder="description" required/></td>
+        <td><input type="text" name="details" class="form-control form-control-sm" placeholder="sous-détail"/></td>
+        <td><input type="number" name="quantities" class="form-control form-control-sm qty-input" value="1" step="0.01" min="0" required/></td>
+        <td><input type="text" name="units" class="form-control form-control-sm" placeholder="unité"/></td>
+        <td><input type="number" name="unitPrices" class="form-control form-control-sm price-input" value="0" step="0.01" min="0" required/></td>
+        <td><input type="date" name="periodStarts" class="form-control form-control-sm"/></td>
+        <td><input type="date" name="periodEnds" class="form-control form-control-sm"/></td>
+        <td class="text-end fw-semibold amount-cell">0,00 $</td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger remove-btn"><i class="bi bi-x"></i></button></td>
+    </tr>`;
+}
+
+// ── Ajouter une ligne ────────────────────────────────────────────────────
+document.getElementById('addItemBtn').addEventListener('click', function() {
+    const tbody = document.getElementById('itemsBody');
+    tbody.insertAdjacentHTML('beforeend', newRowHtml());
+    bindRowEvents(tbody.lastElementChild);
+});
+
+// ── Supprimer une ligne ───────────────────────────────────────────────────
+function bindRowEvents(row) {
+    row.querySelector('.remove-btn').addEventListener('click', function() {
+        row.remove();
+        recalcTotals();
+    });
+    row.querySelectorAll('.qty-input, .price-input').forEach(inp => {
+        inp.addEventListener('input', function() {
+            updateRowAmount(row);
+            recalcTotals();
+        });
+    });
+}
+
+// ── Mise à jour du montant d'une ligne ────────────────────────────────────
+function updateRowAmount(row) {
+    const qty   = parseFloat(row.querySelector('.qty-input').value)   || 0;
+    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+    const amount = qty * price;
+    row.querySelector('.amount-cell').textContent = formatCAD(amount) + ' $';
+}
+
+// ── Recalcul des totaux ───────────────────────────────────────────────────
+function recalcTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty   = parseFloat(row.querySelector('.qty-input').value)   || 0;
+        const price = parseFloat(row.querySelector('.price-input').value) || 0;
+        subtotal += qty * price;
+    });
+    const tps = subtotal * 0.05;
+    const tvq = subtotal * 0.09975;
+    const total = subtotal + tps + tvq;
+
+    document.getElementById('subtotalDisplay').textContent = formatCAD(subtotal) + ' $';
+    document.getElementById('tpsDisplay').textContent      = formatCAD(tps)      + ' $';
+    document.getElementById('tvqDisplay').textContent      = formatCAD(tvq)      + ' $';
+    document.getElementById('totalDisplay').textContent    = formatCAD(total)    + ' $';
+}
+
+// ── Formatage nombre canadien-français ───────────────────────────────────
+function formatCAD(value) {
+    return value.toLocaleString('fr-CA', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+// ── Initialisation : bind sur les lignes existantes ───────────────────────
+document.querySelectorAll('#itemsBody .item-row').forEach(row => bindRowEvents(row));
+</script>
+</th:block>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr"
+      th:replace="~{layout :: layout(~{::content}, ~{::scripts}, 'Client', 'clients')}">
+<th:block th:fragment="content">
+
+    <div class="d-flex align-items-center mb-4">
+        <a href="/clients" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0" th:text="${formTitle}">Client</h1>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="max-width: 640px;">
+        <div class="card-body">
+            <form th:action="@{/clients/save}" method="post" th:object="${client}">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nom / Entreprise <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{name}" required
+                           placeholder="nom entreprise"/>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('name')}"
+                         th:errors="*{name}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Adresse</label>
+                    <input type="text" class="form-control" th:field="*{address}"
+                           placeholder="adresse"/>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label fw-semibold">Province / État</label>
+                        <input type="text" class="form-control" th:field="*{province}"
+                               placeholder="province"/>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">Code postal</label>
+                        <input type="text" class="form-control" th:field="*{postalCode}"
+                               placeholder="code postal"/>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-semibold">Pays</label>
+                        <input type="text" class="form-control" th:field="*{country}"
+                               placeholder="pays"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Courriel</label>
+                        <input type="email" class="form-control" th:field="*{email}" placeholder="courriel"/>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Téléphone</label>
+                        <input type="text" class="form-control" th:field="*{phone}" placeholder="téléphone"/>
+                    </div>
+                </div>
+                <input type="hidden" th:name="_csrf" th:value="${_csrf.token}"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                    <a href="/clients" class="btn btn-outline-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</th:block>
+<th:block th:fragment="scripts"></th:block>
+</html>
