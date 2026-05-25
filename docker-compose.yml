@@ -1,0 +1,13 @@
+services:
+  facturation:
+    build: .
+    container_name: facturation-dev
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SPRING_SSL_KEY_STORE=file:/app/certs/keystore-dev.p12
+      - SPRING_SSL_KEY_STORE_PASSWORD=changeit
+      - SPRING_SSL_KEY_STORE_TYPE=PKCS12
+    restart: unless-stopped

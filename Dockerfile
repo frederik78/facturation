@@ -1,34 +1,31 @@
 # ── Étape 1 : Build ──────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 
 COPY pom.xml .
+# Télécharge les dépendances séparément → cache Docker réutilisé si pom.xml inchangé
+RUN apk add --no-cache maven && mvn -B dependency:go-offline
+
 COPY src ./src
 
-RUN apk add --no-cache maven && \
-    mvn -B package -DskipTests
+RUN mvn -B package -DskipTests
 
 # ── Étape 2 : Runtime ─────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
+# Utilisateur non-root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN mkdir -p /app/data /app/certs && \
+    chown -R appuser:appgroup /app
+
 # Répertoire pour la base SQLite (monter un volume ici en production)
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data /app/certs && \
+    chown -R appuser:appgroup /app
 
 COPY --from=build /app/target/facturation-1.0.0.jar app.jar
+USER appuser
 
-EXPOSE 8443 8080
-
-# Variable d'environnement pour surcharger le chemin DB en cloud
-ENV SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/facturation.db
-
-# Variables TLS — à surcharger avec de vrais secrets en production :
-#   -e SSL_KEY_STORE=/run/secrets/keystore.p12
-#   -e SSL_KEY_STORE_PASSWORD=...
-#   -e APP_USERNAME=admin
-#   -e APP_PASSWORD={bcrypt}$2a$10$...
-ENV SSL_KEY_STORE=classpath:keystore-dev.p12
-ENV SSL_KEY_STORE_PASSWORD=changeit
-ENV SSL_KEY_ALIAS=facturation
+EXPOSE 8443
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
