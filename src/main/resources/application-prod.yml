@@ -1,0 +1,16 @@
+server:
+  port: 8443
+  ssl:
+    key-store: /app/certs/karu.p12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    key-alias: karu
+    key-store-type: PKCS12
+
+spring:
+  datasource:
+    url: jdbc:sqlite:/app/data/facturation.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: validate
