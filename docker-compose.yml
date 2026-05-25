@@ -1,0 +1,9 @@
+services:
+  facturation:
+    build: .
+    container_name: facturation-dev
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

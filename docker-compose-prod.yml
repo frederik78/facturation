@@ -1,0 +1,15 @@
+services:
+  facturation:
+    image: facturation:latest
+    container_name: facturation
+    ports:
+      - "8443:8443"
+    volumes:
+      - /opt/facturation/certs:/app/certs:ro
+      - /opt/facturation/data:/app/data
+    environment:
+      - SSL_KEY_STORE=/app/certs/karu.p12
+      - SSL_KEY_STORE_PASSWORD=${SSL_KEY_STORE_PASSWORD}
+      - SSL_KEY_ALIAS=karu
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/facturation.db
+    restart: unless-stopped
