@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - develop
+      - dockerize
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
